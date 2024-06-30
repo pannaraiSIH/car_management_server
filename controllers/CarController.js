@@ -3,10 +3,22 @@ const Car = require("../models/Car");
 
 const getCars = async (req, res) => {
   try {
-    const cars = await Car.find();
-    res
-      .status(200)
-      .json({ error: false, message: "Success", data: cars || [] });
+    const { page = 1, limit = 5 } = req.query;
+
+    const cars = await Car.find()
+      .limit(limit)
+      .skip(limit * (page - 1));
+
+    const total = await Car.countDocuments();
+
+    res.status(200).json({
+      error: false,
+      message: "Success",
+      data: cars || [],
+      page,
+      limit,
+      total,
+    });
   } catch (error) {
     res.status(400).json({ error: true, message: error.message });
   }
